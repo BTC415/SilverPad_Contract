@@ -269,7 +269,13 @@ contract SilverToken is ReentrancyGuard {
       token = IERC20(tokenAddress_);
      }
 
-  
+    /**
+    * @dev return remaining token balance for ICO
+     * @return amount token balance as uint256
+     */
+    function maxTokenAmountToPurchase() public view returns (uint256) {
+        uint256 _amount = token.balanceOf(address(this));
+        return _amount;
 
 
 
