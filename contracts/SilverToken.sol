@@ -277,7 +277,7 @@ contract SilverToken is ReentrancyGuard {
         uint256 _amount = token.balanceOf(address(this));
         return _amount;
     }
-    
+
 /// @dev test if tokens are charged fully to reach hardcap
     function tokensFullyCharged() public view returns (bool) {
         uint _tokensAvailable = tokensAvailable();
@@ -291,4 +291,28 @@ contract SilverToken is ReentrancyGuard {
         }
     }
 
+ /**
+     * @dev return remaining token balance for ICO
+     * @return amount token balance as uint256
+     */
+    function tokensAvailable() public view returns (uint256) {
+        uint256 _amount = token.balanceOf(address(this));
+        return _amount;
+    }
+
+  /**
+     * @dev return minimum ETH available to purchase tokens
+     * @return amount token balance as uint256
+     */
+    function minEthAvailable() public view returns (uint256) {
+        return (tokenInfo.price * 10 ** tokenInfo.decimal) / 10 ** 18;
+    }
+
+    /**
+     * @dev return token available to purchase using given Eth
+     * @return amount token amount as uint256
+     */
+    function tokensAvailableByEth(uint256 eth_) public view returns (uint256) {
+        return eth_ / tokenInfo.price;
+    }
 }
