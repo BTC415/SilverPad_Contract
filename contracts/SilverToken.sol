@@ -307,4 +307,12 @@ contract SilverToken is ReentrancyGuard {
     function minEthAvailable() public view returns (uint256) {
         return (tokenInfo.price * 10 ** tokenInfo.decimal) / 10 ** 18;
     }
+
+    /**
+     * @dev return token available to purchase using given Eth
+     * @return amount token amount as uint256
+     */
+    function tokensAvailableByEth(uint256 eth_) public view returns (uint256) {
+        return eth_ / tokenInfo.price;
+    }
 }
