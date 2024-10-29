@@ -1,12 +1,12 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@hardhat/console.sol";
+import "hardhat/console.sol";
 
-import "@openzeppelin/contracts/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/ERC20/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract SilverToken is ReentrancyGuard {
     ///@dev state variables
@@ -102,41 +102,17 @@ contract SilverToken is ReentrancyGuard {
     REFUND public refund;
 
     ///@dev investment history
-    HISTORY[] public history
-
-    ///@dev checks if listing partner's address is valid
-    modifier notZeroListerAddress(address lister_) {
-      require(lister_ != address(0), "Invalid Address");
-      _;
-    }
-
-    /// @dev validate if token address is non-zero
-    modifier notZeroTokenAddress(address address_) {
-        require(address_ != address(0), "Invalid TOKEN address");
-        _;
-    }
-
-    ///@dev checks if daoAddress is valid
-    modifier notZeroDAOAddress(address daoAddress_) {
-      require(daoAddress_ !=address(0), "Invalid Address");
-      _;
-    }
+    HISTORY[] public history;
 
     ///@dev checks if fundsRaisedAddress is valid
-    modifier notZeroFundsRaisedAdderss(address fundsRaisedAddress_) {
-      require(fundsRaisedAddress_ != address(0), "Invalid Addresss");
+    modifier notZeroAdderss(address address_) {
+      require(address_ != address(0), "Invalid Addresss");
       _;
     }
 
-    ///@dev checks if totalSupply
-    modifier notZeroTotalSuppy(uint256 totalSupply_) {
-      require(totalSupply_ >0, "TotalSupply must be greater than 0");
-      _;
-    }
-
-    ///@dev checks if token decimal
-    modifier notZeroDecimal(uint256 decimal_) {
-      require(decimal_ >0, "Token decimal must be greater than 0");
+    ///@dev checks if Amount is greater than 0
+    modifier notZeroAmount(uint256 amount_) {
+      require(amount_ >0, "Amount must be greater than 0");
       _;
     }
 
@@ -156,7 +132,7 @@ contract SilverToken is ReentrancyGuard {
 
     ///@dev checks if total tokens can be able to reach hardcap
     modifier totalSupplyAbleToReachHardcap(uint256 totalSupply_, uint256 price_, uint256 tokenDecimal_, uint256 hardcap_) {
-       console.log("TotalTokenValue, hardcap----------->", (totalSupply_ * price_) / 10 ** tokenDecimal_, hardcap_)
+       console.log("TotalTokenValue, hardcap----------->", (totalSupply_ * price_) / 10 ** tokenDecimal_, hardcap_);
        require((totalSupply_ * price_) / 10 ** tokenDecimal_ >= hardcap_, "Insufficient total supply of token");
        _; 
     }
@@ -177,6 +153,13 @@ contract SilverToken is ReentrancyGuard {
         _;
     }
 
+    ///@dev checks if total Supply is greater than 0
+     modifier NotZeroTotalSupply(uint256 totalSupply_) {
+      require(totalSupply_ > 0, "TotalSupply must be greater than 0");
+      _;
+     }
+
+
     ///@dev event for fee distributed after successful ico
     event FeeDistributed(
       address ico,
@@ -185,7 +168,7 @@ contract SilverToken is ReentrancyGuard {
       uint256 listerFee,
       uint256 daoFee,
       uint256 timestamp
-    )
+    );
 
     ///@dev event for invest
     event Invest(
@@ -194,14 +177,14 @@ contract SilverToken is ReentrancyGuard {
       address contributor,
       uint256 amount,
       uint256 timestamp
-    )
+    );
 
     ///@dev event for refundng all funds
     event FundsAllRefund(
       address ico,
       address refunder,
       uint256 timestamp
-    )
+    );
 
     /** 
      *@dev     constructor for ICO launch
@@ -212,12 +195,12 @@ contract SilverToken is ReentrancyGuard {
      *@param   decimal_ token decimal
      *@param   price_ token price
      *@param   tokenAddress_ token tokenAdress
-     *@param   lister_ address of listing partner
+     *@param   listerAddress_ address of listing partner
      *@param   daoAddress_ address of DAO owner
-     *@param   fundsRaisedAddress_ address of raising funds after successful ico
+     *@param   fundRaisedAddress_ address of raising funds after successful ico
      *@param   softcap_ softcap of ico
      *@param   hardcap_ hardcap of ico
-     *@param   endTime endTime of ico
+     *@param   endTime_ endTime of ico
     */
     constructor(
       string memory projectURI_,
@@ -227,21 +210,21 @@ contract SilverToken is ReentrancyGuard {
       uint256 decimal_,
       uint256 price_,
       address tokenAddress_,
-      address lister_,
+      address listerAddress_,
       address daoAddress_,
-      address fundsRaisedAddress_,
+      address fundRaisedAddress_,
       uint256 softcap_,
       uint256 hardcap_,
-      uint256 endTime_,
+      uint256 endTime_
     ) 
 
-     totalSupplyAbleToReachHardcap(totalSupply_, price_, tokenDecimal_, hardcap_)
-     NotZeroTotalSupply(totalSupply_)
-     NotZeroDecimal(decimal_)
-     NotZeroTokenAddress(tokenAddress_)
-     NotZeroListerAddress(listerAddress_)
-     NotZeroDAOAddress(daoAddress_)
-     NotZeroFundsRaisedAddress(fundsRaisedAddress_)
+     totalSupplyAbleToReachHardcap(totalSupply_, price_, decimal_, hardcap_)
+     notZeroAmount(totalSupply_)
+     notZeroAmount(decimal_)
+     notZeroAdderss(tokenAddress_)
+     notZeroAdderss(listerAddress_)
+     notZeroAdderss(daoAddress_)
+     notZeroAdderss(fundRaisedAddress_)
      capSettingValid(softcap_, hardcap_)
      isICORunning(endTime_) 
 
@@ -256,17 +239,16 @@ contract SilverToken is ReentrancyGuard {
       tokenInfo.price = price_;
       tokenInfo.tokenAddress = tokenAddress_;
 
-      lister = lister_;
+      lister = listerAddress_;
       daoAddress = daoAddress_;
-      fundsRaisedAddress = fundsRaisedAddress_;
-
+      fundRaisedAddress = fundRaisedAddress_;
       softcap = softcap_;
-      hardcap = hardcap_
+      hardcap = hardcap_;
 
       startTime = block.timestamp;
       endTime = endTime_;
 
-      token = IERC20(tokenAddress_);
+      silverToken = IERC20(tokenAddress_);
      }
 
   /**
@@ -274,7 +256,7 @@ contract SilverToken is ReentrancyGuard {
      * @return amount token balance as uint256
      */
     function maxTokenAmountToPurchase() public view returns (uint256) {
-        uint256 _amount = token.balanceOf(address(this));
+        uint256 _amount = silverToken.balanceOf(address(this));
         return _amount;
     }
 
@@ -296,7 +278,7 @@ contract SilverToken is ReentrancyGuard {
      * @return amount token balance as uint256
      */
     function tokensAvailable() public view returns (uint256) {
-        uint256 _amount = token.balanceOf(address(this));
+        uint256 _amount = silverToken.balanceOf(address(this));
         return _amount;
     }
 
