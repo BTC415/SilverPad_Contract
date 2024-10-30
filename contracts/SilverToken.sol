@@ -83,10 +83,10 @@ contract SilverToken is ReentrancyGuard {
     mapping(address => uint256) public contributions;
 
     enum ICOState {
-      SUCCESS,
-      FAILED,
-      REACHEDSOFTCAP,
-      REACHEDHARDCAP
+        SUCCESS,
+        FAILED,
+        REACHEDSOFTCAP,
+        REACHEDHARDCAP
     }
 
     ///@dev ERC20 Token
@@ -94,7 +94,7 @@ contract SilverToken is ReentrancyGuard {
 
     ///@dev tokenInfo
     TOKEN public tokenInfo;
-    
+
     ///@dev test if funds are distributed
     DISTRIBUTION public distribution;
 
@@ -106,43 +106,59 @@ contract SilverToken is ReentrancyGuard {
 
     ///@dev checks if fundsRaisedAddress is valid
     modifier notZeroAdderss(address address_) {
-      require(address_ != address(0), "Invalid Addresss");
-      _;
+        require(address_ != address(0), "Invalid Addresss");
+        _;
     }
 
     ///@dev checks if Amount is greater than 0
     modifier notZeroAmount(uint256 amount_) {
-      require(amount_ >0, "Amount must be greater than 0");
-      _;
+        require(amount_ > 0, "Amount must be greater than 0");
+        _;
     }
 
     ///@dev Checks if cap setting valid
     modifier capSettingValid(uint256 softcap_, uint256 hardcap_) {
-      require(softcap_ > 0, "Softcap should set greater than zero");
-      require(hardcap_ > 0, "Hardcap should set greater than zero");
-      require(hardcap_ > softcap_, "Hardcap should set greater than softcap");
-      _;
+        require(softcap_ > 0, "Softcap should set greater than zero");
+        require(hardcap_ > 0, "Hardcap should set greater than zero");
+        require(hardcap_ > softcap_, "Hardcap should set greater than softcap");
+        _;
     }
 
     ///@dev checks if ICO is still running
     modifier isICORunning(uint256 endTime_) {
-      require(block.timestamp < endTime_, "ICO is still running");
-      _;
+        require(block.timestamp < endTime_, "ICO is still running");
+        _;
     }
 
     ///@dev checks if total tokens can be able to reach hardcap
-    modifier totalSupplyAbleToReachHardcap(uint256 totalSupply_, uint256 price_, uint256 tokenDecimal_, uint256 hardcap_) {
-       console.log("TotalTokenValue, hardcap----------->", (totalSupply_ * price_) / 10 ** tokenDecimal_, hardcap_);
-       require((totalSupply_ * price_) / 10 ** tokenDecimal_ >= hardcap_, "Insufficient total supply of token");
-       _; 
+    modifier totalSupplyAbleToReachHardcap(
+        uint256 totalSupply_,
+        uint256 price_,
+        uint256 tokenDecimal_,
+        uint256 hardcap_
+    ) {
+        console.log(
+            "TotalTokenValue, hardcap----------->",
+            (totalSupply_ * price_) / 10 ** tokenDecimal_,
+            hardcap_
+        );
+        require(
+            (totalSupply_ * price_) / 10 ** tokenDecimal_ >= hardcap_,
+            "Insufficient total supply of token"
+        );
+        _;
     }
 
     ///@dev checks if Tokens fully charged for ICO
     modifier tokensChargedFully() {
-      uint256 _tokensAvailable = tokensAvailable();
-      uint256 _fundsAbleToRaise = (tokenInfo.price * _tokensAvailable) /10 ** tokenInfo.decimal;
-      require(_fundsAbleToRaise > hardcap, "Tokens should be charged fully before ICO");
-      _;
+        uint256 _tokensAvailable = tokensAvailable();
+        uint256 _fundsAbleToRaise = (tokenInfo.price * _tokensAvailable) /
+            10 ** tokenInfo.decimal;
+        require(
+            _fundsAbleToRaise > hardcap,
+            "Tokens should be charged fully before ICO"
+        );
+        _;
     }
 
     ///@dev checks if amount is able to buy tokens
@@ -154,39 +170,34 @@ contract SilverToken is ReentrancyGuard {
     }
 
     ///@dev checks if total Supply is greater than 0
-     modifier NotZeroTotalSupply(uint256 totalSupply_) {
-      require(totalSupply_ > 0, "TotalSupply must be greater than 0");
-      _;
-     }
-
+    modifier NotZeroTotalSupply(uint256 totalSupply_) {
+        require(totalSupply_ > 0, "TotalSupply must be greater than 0");
+        _;
+    }
 
     ///@dev event for fee distributed after successful ico
     event FeeDistributed(
-      address ico,
-      address distributor,
-      uint256 fundsRaised,
-      uint256 listerFee,
-      uint256 daoFee,
-      uint256 timestamp
+        address ico,
+        address distributor,
+        uint256 fundsRaised,
+        uint256 listerFee,
+        uint256 daoFee,
+        uint256 timestamp
     );
 
     ///@dev event for invest
     event Invest(
-      address ico,
-      address investor,
-      address contributor,
-      uint256 amount,
-      uint256 timestamp
+        address ico,
+        address investor,
+        address contributor,
+        uint256 amount,
+        uint256 timestamp
     );
 
     ///@dev event for refundng all funds
-    event FundsAllRefund(
-      address ico,
-      address refunder,
-      uint256 timestamp
-    );
+    event FundsAllRefund(address ico, address refunder, uint256 timestamp);
 
-    /** 
+    /**
      *@dev     constructor for ICO launch
      *@param   projectURI_ project metadata uri "https://ipfs..."
      *@param   name_ token name
@@ -201,58 +212,56 @@ contract SilverToken is ReentrancyGuard {
      *@param   softcap_ softcap of ico
      *@param   hardcap_ hardcap of ico
      *@param   endTime_ endTime of ico
-    */
+     */
     constructor(
-      string memory projectURI_,
-      string memory name_,
-      string memory symbol_,
-      uint256 totalSupply_,
-      uint256 decimal_,
-      uint256 price_,
-      address tokenAddress_,
-      address listerAddress_,
-      address daoAddress_,
-      address fundRaisedAddress_,
-      uint256 softcap_,
-      uint256 hardcap_,
-      uint256 endTime_
-    ) 
+        string memory projectURI_,
+        string memory name_,
+        string memory symbol_,
+        uint256 totalSupply_,
+        uint256 decimal_,
+        uint256 price_,
+        address tokenAddress_,
+        address listerAddress_,
+        address daoAddress_,
+        address fundRaisedAddress_,
+        uint256 softcap_,
+        uint256 hardcap_,
+        uint256 endTime_
+    )
+        totalSupplyAbleToReachHardcap(totalSupply_, price_, decimal_, hardcap_)
+        notZeroAmount(totalSupply_)
+        notZeroAmount(decimal_)
+        notZeroAdderss(tokenAddress_)
+        notZeroAdderss(listerAddress_)
+        notZeroAdderss(daoAddress_)
+        notZeroAdderss(fundRaisedAddress_)
+        capSettingValid(softcap_, hardcap_)
+        isICORunning(endTime_)
+    {
+        owner = msg.sender;
+        projectURI = projectURI_;
 
-     totalSupplyAbleToReachHardcap(totalSupply_, price_, decimal_, hardcap_)
-     notZeroAmount(totalSupply_)
-     notZeroAmount(decimal_)
-     notZeroAdderss(tokenAddress_)
-     notZeroAdderss(listerAddress_)
-     notZeroAdderss(daoAddress_)
-     notZeroAdderss(fundRaisedAddress_)
-     capSettingValid(softcap_, hardcap_)
-     isICORunning(endTime_) 
+        tokenInfo.name = name_;
+        tokenInfo.symbol = symbol_;
+        tokenInfo.totalSupply = totalSupply_;
+        tokenInfo.decimal = decimal_;
+        tokenInfo.price = price_;
+        tokenInfo.tokenAddress = tokenAddress_;
 
-     {
-      owner = msg.sender;
-      projectURI = projectURI_;
+        lister = listerAddress_;
+        daoAddress = daoAddress_;
+        fundRaisedAddress = fundRaisedAddress_;
+        softcap = softcap_;
+        hardcap = hardcap_;
 
-      tokenInfo.name = name_;
-      tokenInfo.symbol = symbol_;
-      tokenInfo.totalSupply = totalSupply_;
-      tokenInfo.decimal = decimal_;
-      tokenInfo.price = price_;
-      tokenInfo.tokenAddress = tokenAddress_;
+        startTime = block.timestamp;
+        endTime = endTime_;
 
-      lister = listerAddress_;
-      daoAddress = daoAddress_;
-      fundRaisedAddress = fundRaisedAddress_;
-      softcap = softcap_;
-      hardcap = hardcap_;
+        silverToken = IERC20(tokenAddress_);
+    }
 
-      startTime = block.timestamp;
-      endTime = endTime_;
-
-      silverToken = IERC20(tokenAddress_);
-     }
-
-  /**
-    * @dev return remaining token balance for ICO
+    /**
+     * @dev return remaining token balance for ICO
      * @return amount token balance as uint256
      */
     function maxTokenAmountToPurchase() public view returns (uint256) {
@@ -260,7 +269,7 @@ contract SilverToken is ReentrancyGuard {
         return _amount;
     }
 
-/// @dev test if tokens are charged fully to reach hardcap
+    /// @dev test if tokens are charged fully to reach hardcap
     function tokensFullyCharged() public view returns (bool) {
         uint _tokensAvailable = tokensAvailable();
         uint _fundsAbleToRaise = (tokenInfo.price * _tokensAvailable) /
@@ -273,7 +282,7 @@ contract SilverToken is ReentrancyGuard {
         }
     }
 
- /**
+    /**
      * @dev return remaining token balance for ICO
      * @return amount token balance as uint256
      */
@@ -282,7 +291,7 @@ contract SilverToken is ReentrancyGuard {
         return _amount;
     }
 
-  /**
+    /**
      * @dev return minimum ETH available to purchase tokens
      * @return amount token balance as uint256
      */
@@ -311,4 +320,15 @@ contract SilverToken is ReentrancyGuard {
      * @param amount_ the amount of eth
      * @return amount token amount as uint256
      */
+    function tokensByEth(uint256 amount_) public view returns (uint256) {
+        return (amount_ * 10 ** tokenInfo.decimal) / tokenInfo.price;
+    }
+
+    /**
+     * @dev Calculate the amount of tokens to sell to reach the hard cap.
+     * @return amount token amount as uint256
+     */
+    function totalCap() public view returns (uint256) {
+        return hardcap / tokenInfo.price;
+    }
 }
