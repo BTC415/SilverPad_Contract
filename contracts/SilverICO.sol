@@ -3,12 +3,10 @@ pragma solidity ^0.8.24;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol"
 
 contract SilverICO is Ownable {
-  using SafeMath for uint256;
-  // Address of the DaddyDoge token
-    address public daddyDogeToken;
+    // Address of the SilverDoge token
+    address public silverDogeToken;
 
     // Presale parameters
     uint256 public presaleRate; // Tokens per BNB
@@ -20,17 +18,21 @@ contract SilverICO is Ownable {
     mapping(address => uint256) public contributions;
 
     // Events
-    event Contribution(address indexed contributor, uint256 amount, uint256 tokensPurchased);
+    event Contribution(
+        address indexed contributor,
+        uint256 amount,
+        uint256 tokensPurchased
+    );
 
     // Constructor
     constructor(
-        address _daddyDogeToken,
+        address _silverDogeToken,
         uint256 _presaleCap,
         uint256 _presaleStartTime,
         uint256 _presaleEndTime,
         address _owner
     ) Ownable(_owner) {
-        daddyDogeToken = _daddyDogeToken;
+        silverDogeToken = _silverDogeToken;
         presaleCap = _presaleCap;
         presaleStartTime = _presaleStartTime;
         presaleEndTime = _presaleEndTime;
@@ -48,17 +50,20 @@ contract SilverICO is Ownable {
         require(block.timestamp <= presaleEndTime, "Presale has ended");
         require(msg.value > 0, "Must send BNB to participate");
 
-        uint256 tokensPurchased = msg.value.mul(presaleRate);
+        uint256 tokensPurchased = (msg.value) * (presaleRate);
         require(tokensPurchased > 0, "Insufficient BNB sent");
 
         // Check if the presale cap is reached
-        require(getPresaleRaised() + msg.value <= presaleCap, "Presale cap reached");
+        require(
+            getPresaleRaised() + msg.value <= presaleCap,
+            "Presale cap reached"
+        );
 
         // Transfer tokens to the contributor
-        IERC20(daddyDogeToken).transfer(msg.sender, tokensPurchased);
+        IERC20(silverDogeToken).transfer(msg.sender, tokensPurchased);
 
         // Update contribution mapping
-        contributions[msg.sender] = contributions[msg.sender].add(msg.value);
+        contributions[msg.sender] = contributions[msg.sender] + (msg.value);
 
         // Emit event
         emit Contribution(msg.sender, msg.value, tokensPurchased);
