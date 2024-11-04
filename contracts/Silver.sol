@@ -41,6 +41,14 @@ contract Silver is ReentrancyGuard {
         uint256 timestamp;
     }
 
+    /// @dev enum for representing ICO's state
+    enum ICOState {
+        SUCCESS,
+        FAILED,
+        REACHEDSOFTCAP,
+        REACHEDHARDCAP
+    }
+
     ///@dev address of listing partner
     address public lister;
 
@@ -85,13 +93,6 @@ contract Silver is ReentrancyGuard {
 
     ///@dev contributions of contributors
     mapping(address => uint256) public contributions;
-
-    enum ICOState {
-        SUCCESS,
-        FAILED,
-        REACHEDSOFTCAP,
-        REACHEDHARDCAP
-    }
 
     ///@dev ERC20 Token
     IERC20 public immutable silverToken;
