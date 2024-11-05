@@ -99,4 +99,31 @@ contract SilverPadFactory {
         _;
     }
 
+    /**
+     * @dev contructor
+     * @param daiAddress_ DAI stable coin address for paying spam filter fee...
+     * @param cryptoSIDADAO_ cryptoSI DAODAO address...
+     */
+    constructor(
+        address daiAddress_,
+        address cryptoSIDADAO_
+    ) notZeroAddress(cryptoSIDADAO_) {
+        require(daiAddress_ != address(0), "Invalid DAI address");
+        daiToken = IERC20(daiAddress_);
+        cryptoSIDADAO = cryptoSIDADAO_;
+        owner = msg.sender;
+    }
+
+    /**
+     * @dev Pay non-refundable spam filter fee of 100DAI
+     */
+    function paySpamFilterFee() external {
+        uint256 _allowance = daiToken.allowance(msg.sender, address(this));
+        require(_allowance >= feeAmount, "Insufficient DAI allowance");
+
+        SafeERC20.safeTransferFrom(daiToken, msg.sender, cryptoSIDADAO, feeAmount);
+        feeContributions[msg.sender] += feeAmount;
+
+        emit PaidSpamFilterFee(msg.sender, feeAmount);
+    }
 }
