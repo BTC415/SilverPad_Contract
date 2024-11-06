@@ -212,4 +212,35 @@ contract SilverPadFactory {
         );
         return _silver;
     }
+    /**
+     * @dev set DAO address
+     */
+    function setDAOAddress(
+        address cryptoSIDADAO_
+    ) external notZeroAddress(cryptoSIDADAO_) {
+        cryptoSIDADAO = cryptoSIDADAO_;
+    }
+
+    /**
+     * @dev Test whether the user has already paid the spam filter fee of 100DAI
+     */
+    function paidSpamFilterFee(address user_) external view returns (bool) {
+        bool _success = feeContributions[user_] >= feeAmount;
+        return _success;
+    }
+
+    /**
+     * @dev get all ico lists
+     */
+    function getSilvers() public view returns (address[] memory) {
+        return silvers;
+    }
+
+    /**
+     * @dev set factory's owner
+     */
+    function setOwner(address owner_) external {
+        require(owner_ != address(0), "Owner address is not zero!");
+        owner = owner_;
+    }
 }
