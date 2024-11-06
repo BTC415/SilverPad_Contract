@@ -121,9 +121,95 @@ contract SilverPadFactory {
         uint256 _allowance = daiToken.allowance(msg.sender, address(this));
         require(_allowance >= feeAmount, "Insufficient DAI allowance");
 
-        SafeERC20.safeTransferFrom(daiToken, msg.sender, cryptoSIDADAO, feeAmount);
+        SafeERC20.safeTransferFrom(
+            daiToken,
+            msg.sender,
+            cryptoSIDADAO,
+            feeAmount
+        );
         feeContributions[msg.sender] += feeAmount;
 
         emit PaidSpamFilterFee(msg.sender, feeAmount);
+    }
+    /**
+     * @dev launch new ICO
+     * @param projectURI_ project metadata uri "https://ipfs.."
+     * @param softcap_ softcap for ICO 100 * 10**18
+     * @param hardcap_ hardcap for ICO  200 * 10**18
+     * @param endTime_ ICO end time 1762819200000
+     * @param name_ token name "vulcan token"
+     * @param symbol_ token symbol "$VULCAN"
+     * @param price_ token price for ICO 0.01 * 10**18
+     * @param decimal_ token decimal 18
+     * @param totalSupply_ token totalSupply 1000000000 * 10**18
+     * @param tokenAddress_ token address
+     * @param fundsAddress_ account address that funds will go to
+     * @param lister_ listing partner's address
+     */
+    function launchNewICO(
+        string memory projectURI_,
+        string memory name_,
+        string memory symbol_,
+        uint256 totalSupply_,
+        uint256 decimal_,
+        uint256 price_,
+        address tokenAddress_,
+        address lister_,
+        address fundsAddress_,
+        uint256 softcap_,
+        uint256 hardcap_,
+        uint256 endTime_
+    )
+        public
+        spamFilterFeePaid(msg.sender)
+        capSettingValid(softcap_, hardcap_)
+        isFuture(endTime_)
+        notZeroAddress(tokenAddress_)
+        notZeroAddress(fundsAddress_)
+        notZeroValue(price_)
+        totalSupplyAbleToReachHardcap(price_, totalSupply_, decimal_, hardcap_)
+        notZeroValue(decimal_)
+        notZeroValue(totalSupply_)
+        returns (address)
+    {
+        Silver _newSilver = new Silver(
+            projectURI_,
+            name_,
+            symbol_,
+            totalSupply_,
+            decimal_,
+            price_,
+            msg.sender,
+            tokenAddress_,
+            lister_,
+            cryptoSIDADAO,
+            fundsAddress_,
+            softcap_,
+            hardcap_,
+            endTime_
+        );
+
+        address _silver = address(_newSilver);
+        silvers.push(_silver);
+        feeContributions[msg.sender] -= feeAmount;
+
+        emit ICOCreated(
+            msg.sender,
+            _silver,
+            projectURI_,
+            softcap_,
+            hardcap_,
+            block.timestamp,
+            endTime_,
+            name_,
+            symbol_,
+            price_,
+            decimal_,
+            totalSupply_,
+            tokenAddress_,
+            fundsAddress_,
+            lister_
+        );
+        return _silver;
     }
 }
