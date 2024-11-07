@@ -6,13 +6,13 @@ async function main() {
   console.log("Deploying DAI token contracts with the account:", deployer.address);
   const DAI = await ethers.getContractFactory("DAI");
   const daiToken = await DAI.deploy(1000000000);
-  await daiToken.deployed();
+  await daiToken.waitForDeployment();
   console.log("DAI address:", await daiToken.getAddress());
 
   console.log("Deploying DEW token contracts with the account:", deployer.address);
   const DEW = await ethers.getContractFactory("DEW");
   const dewToken = await DEW.deploy();
-  await dewToken.deployed();
+  await dewToken.waitForDeployment();
   console.log("DEW address:", await dewToken.getAddress());
 
 }

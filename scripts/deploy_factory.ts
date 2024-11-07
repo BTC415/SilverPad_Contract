@@ -10,7 +10,7 @@ async function main() {
   console.log("Deploying SilverPadFactory contracts with the account:", deployer.address);
   const FACTORY = await ethers.getContractFactory("SilverPadFactory");
   const factory = await FACTORY.deploy(dai, dao);
-  await factory.deployed();
+  await factory.waitForDeployment();
   console.log("factory address:", await factory.getAddress());
   //https://sepolia.etherscan.io/address/0x0a86feB19b48Ad6ACDf1A476b4757A1abc3Ee82a#code
 }
