@@ -79,7 +79,7 @@ contract Silver is ReentrancyGuard {
     ////@dev funds raised
     uint256 public fundsRaised;
 
-    ///@dev projectURI data
+    ///@dev project meta data uri
     string public projectURI;
 
     ///@dev investors address
