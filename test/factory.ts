@@ -2,7 +2,6 @@ import { ethers } from "hardhat";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("Factory Contract Test", function () {
-
   let silverPadFactory: any;
   let ico: any;
 
@@ -20,7 +19,6 @@ describe("Factory Contract Test", function () {
   const _endTime = Math.floor(new Date("2024-11-30").getTime() / 1000);
 
   it("should deploy DAI contract", async function () {
-
     [owner, user, user1, user2, lister, contributor1, contributor2] = await ethers.getSigners();
 
     // Get the first account as the owner
@@ -46,7 +44,6 @@ describe("Factory Contract Test", function () {
 
     console.log('\tSilverPadFactory deployed at:', await silverPadFactory.getAddress());
   });
-
 
   it("test for deploying Silver ICO", async function () {
 
@@ -118,7 +115,6 @@ describe("Factory Contract Test", function () {
     });
   });
 
-
   it("Check the balance of all addresses", async function () {
     const listerAmount = await ethers.provider.getBalance(lister.address);
     console.log("lister ", ethers.formatEther(listerAmount));
@@ -131,7 +127,6 @@ describe("Factory Contract Test", function () {
     const userAmount = await ethers.provider.getBalance(user.address);
     console.log("creator ", await ethers.formatEther(userAmount));
   });
-
 
   it("Try to invest", async function () {
     await dew.connect(user).transfer(await ico.getAddress(), ethers.parseUnits("1543114.817261654", 18));
